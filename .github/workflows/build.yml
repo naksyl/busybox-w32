@@ -11,8 +11,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
-      - name: Install MinGW
-        run: apk add mingw-w64-gcc make
+      - name: Install packages
+        run: apk add mingw-w64-gcc make gcc
       - name: Build busybox unicode
         run: |
           make mingw64u_defconfig
