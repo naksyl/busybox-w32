@@ -2272,6 +2272,7 @@ const char *get_system_drive(void)
 		if ((len=root_len(sysdir))) {
 			drive = xstrndup(sysdir, len);
 		}
+		fix_path_case(drive);
 	}
 
 	return getenv(BB_SYSTEMROOT) ?: drive;

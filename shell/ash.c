@@ -16277,8 +16277,11 @@ int ash_main(int argc UNUSED_PARAM, char **argv)
 	else {
 		// read /etc/ashrc for non login shells in portable mode
 		const char* hp = xasprintf("%s/etc/ashrc", get_system_drive() ?: "");
-		read_profile(hp);
-		free((void *)hp);
+		if(hp) {
+			chdir_system_drive();
+			read_profile(hp);
+			free((void *)hp);
+		}
 	}
 #endif
  state2:
