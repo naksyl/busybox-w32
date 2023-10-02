@@ -1101,12 +1101,14 @@ int mingw_rename(const char *pold, const char *pnew)
 static char *gethomedir(void)
 {
 	static char *buf = NULL;
-	DECLARE_PROC_ADDR(BOOL, GetUserProfileDirectoryA, HANDLE, LPSTR, LPDWORD);
 
 	if (!buf) {
+#if ENABLE_FEATURE_PORTABLE
+		buf = xasprintf("%s/home", get_system_drive() ?: "");
+#else
+		DECLARE_PROC_ADDR(BOOL, GetUserProfileDirectoryA, HANDLE, LPSTR, LPDWORD);
 		DWORD len = PATH_MAX;
 		HANDLE h;
-
 		buf = xzalloc(len);
 		if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &h)) {
 			if (INIT_PROC_ADDR(userenv.dll, GetUserProfileDirectoryA)) {
@@ -1115,6 +1117,7 @@ static char *gethomedir(void)
 			}
 			CloseHandle(h);
 		}
+#endif
 	}
 	return buf;
 }
@@ -2261,7 +2264,11 @@ const char *get_system_drive(void)
 	int len;
 
 	if (drive == NULL) {
+#if ENABLE_FEATURE_PORTABLE
+		const char *sysdir = bb_busybox_exec_path;
+#else
 		const char *sysdir = getsysdir();
+#endif
 		if ((len=root_len(sysdir))) {
 			drive = xstrndup(sysdir, len);
 		}

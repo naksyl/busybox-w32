@@ -16273,6 +16273,14 @@ int ash_main(int argc UNUSED_PARAM, char **argv)
 		if (hp)
 			read_profile("$HOME/.profile");
 	}
+#if ENABLE_FEATURE_PORTABLE
+	else {
+		// read /etc/ashrc for non login shells in portable mode
+		const char* hp = xasprintf("%s/etc/ashrc", get_system_drive() ?: "");
+		read_profile(hp);
+		free((void *)hp);
+	}
+#endif
  state2:
 	state = 3;
 	if (iflag
@@ -16282,9 +16290,11 @@ int ash_main(int argc UNUSED_PARAM, char **argv)
 #endif
 #endif
 	) {
+#if ! ENABLE_FEATURE_PORTABLE
 		const char *shinit = lookupvar("ENV");
 		if (shinit != NULL && *shinit != '\0')
 			read_profile(shinit);
+#endif
 	}
 	popstackmark(&smark);
  state3:

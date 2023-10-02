@@ -556,6 +556,16 @@ config FEATURE_EXTRA_FILE_DATA
 	determine the ownership of files so that, for example, 'ls' can
 	distinguish files belonging to the current user.
 
+config FEATURE_PORTABLE
+	bool "Portable edition"
+	default n
+	depends on PLATFORM_MINGW32
+	help
+	Dynamically remap SYSTEMDRIVE to drive where busybox.exe lives.
+	Instead of sourcing $ENV read hardcoded /etc/ashrc for non-login,
+	shells. Example: if busybox is on pendrive mounted on Z: drive then
+	/bin -> Z:/bin, /etc -> Z:/etc $HOME -> Z:/home
+
 comment 'Build Options'
 
 config STATIC
