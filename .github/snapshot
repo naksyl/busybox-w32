@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+FIRST = 91aea24418ed7ae0874b428d00e1f568c056aca5
+
+all:
+    gh release upload portable --clobber busybox.exe
+    NR=$$(git rev-list --count $(FIRST)..HEAD); \
+    gh release edit portable --latest \
+        --title "snapshot v$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)-$${NR}" \
+        --notes "Busybox 64bit portable, unicode snapshot"
+
+include ../Makefile

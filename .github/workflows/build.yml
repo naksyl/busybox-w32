@@ -2,9 +2,9 @@ name: Build
 on:
   workflow_dispatch:
   push:
-    branches: [ master, portable ]
+    branches: [ portable ]
 jobs:
-  container-test-job:
+  snapshot:
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -22,3 +22,6 @@ jobs:
         with:
           name: busybox
           path: busybox.exe
+      - name: Release snapshot
+        run: |
+          .github/snapshot
