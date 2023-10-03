@@ -3,25 +3,38 @@ on:
   workflow_dispatch:
   push:
     branches: [ portable ]
+
 jobs:
   snapshot:
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
+
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
       - name: Install packages
-        run: apk add mingw-w64-gcc make gcc musl-dev
-      - name: Build busybox portable, unicode
+        run: apk add mingw-w64-gcc make gcc musl-dev git github-cli 
+
+      - name: Setup git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Build busybox portable, glob, unicode
         run: |
           make mingw64pu_defconfig
           make
-      - name: Store busybox.exe
+
+      - name: Store artifact
         uses: actions/upload-artifact@v3
         with:
           name: busybox
           path: busybox.exe
+
       - name: Release snapshot
-        run: |
-          .github/snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/snapshot
