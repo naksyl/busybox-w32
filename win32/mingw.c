@@ -2265,7 +2265,8 @@ const char *get_system_drive(void)
 
 	if (drive == NULL) {
 #if ENABLE_FEATURE_PORTABLE
-		const char *sysdir = bb_busybox_exec_path;
+		char buff[MAX_PATH];
+		const char *sysdir = realpath(bb_busybox_exec_path, buff);
 #else
 		const char *sysdir = getsysdir();
 #endif
@@ -2273,9 +2274,13 @@ const char *get_system_drive(void)
 			drive = xstrndup(sysdir, len);
 		}
 		fix_path_case(drive);
+		setenv("BB_SYSTEMDRIVE", drive, TRUE);
 	}
-
+#if ENABLE_FEATURE_PORTABLE
+	return drive;
+#endif
 	return getenv(BB_SYSTEMROOT) ?: drive;
+
 }
 
 /* Return pointer to system drive if path is of form '/file', else NULL */

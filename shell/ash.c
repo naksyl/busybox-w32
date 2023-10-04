@@ -16273,23 +16273,6 @@ int ash_main(int argc UNUSED_PARAM, char **argv)
 		if (hp)
 			read_profile("$HOME/.profile");
 	}
-#if ENABLE_FEATURE_PORTABLE
-	else {
-		// read /etc/ashrc for non login shells in portable mode
-		const char* hp = xasprintf("%s/etc/ashrc", get_system_drive() ?: "");
-		char *cwd = getcwd(NULL, 0);
-		if(hp && cwd) {
-			chdir_system_drive();
-			read_profile(hp);
-			
-			chdir(cwd);
-			setpwd(NULL, 0);
-			
-			free((void *)hp);
-			free(cwd);
-		}
-	}
-#endif
  state2:
 	state = 3;
 	if (iflag
@@ -16299,7 +16282,19 @@ int ash_main(int argc UNUSED_PARAM, char **argv)
 #endif
 #endif
 	) {
-#if ! ENABLE_FEATURE_PORTABLE
+#if ENABLE_FEATURE_PORTABLE
+		// read /etc/ashrc and ~/.ashrc for non-login interactive shells 
+		// disable ENV in portable mode
+		const char* hp = xasprintf("%s/etc/ashrc", get_system_drive() ?: "");
+		if(hp) {
+			read_profile(hp);
+			free((void *)hp);
+		}
+
+		hp = lookupvar("HOME");
+		if (hp)
+			read_profile("$HOME/.ashrc");
+#else
 		const char *shinit = lookupvar("ENV");
 		if (shinit != NULL && *shinit != '\0')
 			read_profile(shinit);
